@@ -1,5 +1,6 @@
 package dev.lankydan.people.web
 
+import dev.lankydan.people.data.PersonEntity
 import dev.lankydan.people.data.PersonRepository
 import dev.lankydan.web.Controller
 import io.javalin.apibuilder.ApiBuilder.delete
@@ -30,27 +31,43 @@ class PersonController(private val personRepository: PersonRepository) : Control
     }
 
     private fun all(ctx: Context) {
-        val people = personRepository.findAll().map { PersonDto(it.id.value, it.firstName, it.lastName) }
+        val people = personRepository.findAll().map { entity -> entity.toDto() }
         ctx.json(people)
     }
 
     private fun get(ctx: Context) {
         val id = UUID.fromString(ctx.pathParam("id"))
-        val person = personRepository.find(id) ?: throw NotFoundResponse()
+        val person = personRepository.find(id)?.toDto() ?: throw NotFoundResponse()
         ctx.json(person)
     }
 
     private fun post(ctx: Context) {
-        ctx.json(personRepository.persist(ctx.bodyAsClass()))
+        val person = ctx.bodyAsClass<PersonDto>()
+        ctx.json(personRepository.persist {
+            firstName = person.firstName
+            lastName = person.lastName
+        }.toDto())
     }
 
     private fun put(ctx: Context) {
         val id = UUID.fromString(ctx.pathParam("id"))
-        val updated = personRepository.update(id, ctx.bodyAsClass()) ?: throw NotFoundResponse()
+        val person = ctx.bodyAsClass<PersonDto>()
+        val updated = personRepository.update(id) {
+            firstName = person.firstName
+            lastName = person.lastName
+        }?.toDto() ?: throw NotFoundResponse()
         ctx.json(updated)
     }
 
     private fun delete(ctx: Context) {
         personRepository.delete(UUID.fromString(ctx.pathParam("id")))
+    }
+
+    private fun PersonEntity.toDto(): PersonDto {
+        return PersonDto(
+            id.value,
+            firstName,
+            lastName
+        )
     }
 }

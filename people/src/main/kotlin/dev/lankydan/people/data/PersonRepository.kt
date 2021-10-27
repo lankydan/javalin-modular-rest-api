@@ -18,20 +18,16 @@ class PersonRepository {
         }
     }
 
-    fun persist(person: PersonDto): PersonDto {
+    fun persist(person: PersonEntity.() -> Unit): PersonEntity {
         return transaction {
-            PersonEntity.new {
-                firstName = person.firstName
-                lastName = person.lastName
-            }
-        }.let { PersonDto(it.id.value, it.firstName, it.lastName) }
+            PersonEntity.new(person)
+        }
     }
 
-    fun update(id: UUID, person: PersonDto): PersonEntity? {
+    fun update(id: UUID, person: PersonEntity.() -> Unit): PersonEntity? {
         return transaction {
             PersonEntity.findById(id)?.also { entity ->
-                entity.firstName = person.firstName
-                entity.lastName = person.lastName
+                person(entity)
             }
         }
     }

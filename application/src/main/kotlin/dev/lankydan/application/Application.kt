@@ -1,15 +1,12 @@
-package dev.lankydan.people.application
+package dev.lankydan.application
 
-import dev.lankydan.people.data.PersonRepository
-import dev.lankydan.people.web.PersonController
+import dev.lankydan.people.People
 import dev.lankydan.web.Controller
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.path
 import org.jetbrains.exposed.sql.Database
 import org.kodein.di.DI
 import org.kodein.di.allInstances
-import org.kodein.di.bindSingleton
-import org.kodein.di.instance
 
 fun main() {
 
@@ -21,8 +18,7 @@ fun main() {
     )
 
     val di = DI {
-        bindSingleton { PersonRepository() }
-        bindSingleton { PersonController(instance()) }
+        import(People.module)
     }
     Javalin.create { config ->
         // Turned on as it's an example and makes it easier to see what's going on
