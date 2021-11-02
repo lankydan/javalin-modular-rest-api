@@ -1,6 +1,5 @@
 package dev.lankydan.people.data
 
-import dev.lankydan.people.web.PersonDto
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
 
