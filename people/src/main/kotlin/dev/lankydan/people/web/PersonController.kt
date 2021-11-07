@@ -25,19 +25,19 @@ class PersonController(private val personRepository: PersonRepository) : Control
     }
 
     private fun all(ctx: Context) {
-        val people = personRepository.findAll().map { entity -> entity.toPerson() }
+        val people: List<Person> = personRepository.findAll().map { entity -> entity.toPerson() }
         ctx.json(people)
     }
 
     private fun get(ctx: Context) {
-        val id = UUID.fromString(ctx.pathParam("id"))
-        val person = personRepository.find(id)?.toPerson() ?: throw NotFoundResponse()
+        val id: UUID = UUID.fromString(ctx.pathParam("id"))
+        val person: Person = personRepository.find(id)?.toPerson() ?: throw NotFoundResponse()
         ctx.json(person)
     }
 
     private fun post(ctx: Context) {
-        val person = ctx.bodyAsClass<Person>()
-        val persisted = personRepository.persist {
+        val person: Person = ctx.bodyAsClass()
+        val persisted: Person = personRepository.persist {
             firstName = person.firstName
             lastName = person.lastName
         }.toPerson()
@@ -45,9 +45,9 @@ class PersonController(private val personRepository: PersonRepository) : Control
     }
 
     private fun put(ctx: Context) {
-        val id = UUID.fromString(ctx.pathParam("id"))
-        val person = ctx.bodyAsClass<Person>()
-        val updated = personRepository.update(id) {
+        val id: UUID = UUID.fromString(ctx.pathParam("id"))
+        val person: Person = ctx.bodyAsClass()
+        val updated: Person = personRepository.update(id) {
             firstName = person.firstName
             lastName = person.lastName
         }?.toPerson() ?: throw NotFoundResponse()
